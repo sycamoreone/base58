@@ -39,7 +39,13 @@ func Decode(src string) ([]byte, error) {
 		n.Mul(n, radix)
 		n.Add(n, big.NewInt(int64(b)))
 	}
-	return n.Bytes(), nil
+	
+	dst := make([]byte, 0)
+	for i := 0; i < len(buf) && buf[i] == '1'; i++ {
+		dst = append(dst, 0)
+	}
+	dst = append(dst, n.Bytes()...)
+	return dst, nil
 }
 
 // Encode encodes src and returns the encoded data.
@@ -54,6 +60,10 @@ func Encode(src []byte) string {
 		mod := new(big.Int)
 		n.DivMod(n, radix, mod)
 		dst = append(dst, alphabet[mod.Int64()])
+	}
+
+	for i := 0; i < len(src) && src[i] == 0; i++ {
+		dst = append(dst, '1')
 	}
 
 	for i, j := 0, len(dst)-1; i < j; i, j = i+1, j-1 {
